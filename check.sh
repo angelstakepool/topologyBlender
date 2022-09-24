@@ -48,7 +48,7 @@ output_topology=$(jq -c '.Producers[]' <<< $topology | while read i; do
     j=$($cncli_path ping --host ${host} --port ${port})
     status=$(jq -r '.status' <<< $j)
     version=$(jq -r '.networkProtocolVersion' <<< $j)
-    if [[ $status == 'ok' ]] && [[ $version == 9 ]]; then
+    if [[ $status == 'ok' ]] && [[ $version -gt 8]]; then
       connectDuration=$(jq -r '.connectDurationMs' <<< $j)
       durationMs=$(jq -r '.durationMs' <<< $j)
       echo -e "   ${SUCCESS}Good Peer!${NC} Host: ${host} ConnectDurationMs: ${connectDuration} DurationMs: ${durationMs} ProtocolVersion: ${version}" 1>&2
