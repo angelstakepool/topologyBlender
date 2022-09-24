@@ -69,14 +69,15 @@ else
     port=$(jq -r '.port' <<< $i)
     j=$($cncli_path ping --host ${host} --port ${port})
     status=$(jq -r '.status' <<< $j)
-    if [[ $status == 'ok' ]]; then
+    version=$(jq -r '.networkProtocolVersion' <<< $j)
+    if [[ $status == 'ok' ]] && [[ $version == 9 ]]; then
       connectDuration=$(jq -r '.connectDurationMs' <<< $j)
       durationMs=$(jq -r '.durationMs' <<< $j)
-      echo -e "   ${SUCCESS}Good Peer!${NC} Host: ${host} ConnectDurationMs: ${connectDuration} DurationMs: ${durationMs}" 1>&2
+      echo -e "   ${SUCCESS}Good Peer!${NC} Host: ${host} ConnectDurationMs: ${connectDuration} DurationMs: ${durationMs} ProtocolVersion: ${version}" 1>&2
       i=$(jq ". + {connectDurationMs: $connectDuration, durationMs: $durationMs}" <<< $i)
       echo $i
     else
-      echo -e "   ${REKT}REKT Peer!${NC} Host: ${host} Port: ${port} Status: ${status}" 1>&2
+      echo -e "   ${REKT}REKT Peer!${NC} Host: ${host} Port: ${port} Status: ${status} ProtocolVersion: ${version}" 1>&2
     fi
   done | jq -sr 'unique_by(.addr) | sort_by(.durationMs) | flatten | {Producers: .}')
 fi
